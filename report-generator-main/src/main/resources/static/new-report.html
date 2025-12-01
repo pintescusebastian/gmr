@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Report</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🫀 GMR</div>
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-link">← Dashboard</a>
+                <a href="index.html" onclick="logout()" class="btn btn-secondary-small">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Form Section -->
+    <section class="form-section">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>📋 New Cardiac Assessment</h1>
+               
+                <div class="doctor-info" id="doctorInfoBadge">
+                    <span>👨‍⚕️ Loading...</span>
+                </div>
+            </div>
+
+            <form id="patientForm">
+                
+                <!-- PATIENT INFORMATION -->
+                <div class="form-section-title">
+                    <h2>👤 Patient Information</h2>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientName">Full Name *</label>
+                        <input type="text" id="patientName" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age *</label>
+                        <input type="number" id="age" placeholder="45" min="1" max="120" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">Gender *</label>
+                        <select id="gender" required>
+                            <option value="">Select...</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="75" min="20" max="300" step="0.1">
+                    </div>
+                </div>
+
+                <!-- CARDIAC PARAMETERS -->
+                <div class="form-section-title">
+                    <h2>💓 Cardiac Parameters</h2>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="heartRate">Heart Rate (bpm) *</label>
+                        <input type="number" id="heartRate" placeholder="75" min="30" max="220" required>
+                        <small class="hint">Normal: 60-100 bpm</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="systolicBP">Systolic BP (mmHg) *</label>
+                        <input type="number" id="systolicBP" placeholder="120" min="70" max="250" required>
+                        <small class="hint">Normal: 90-120 mmHg</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="diastolicBP">Diastolic BP (mmHg) *</label>
+                        <input type="number" id="diastolicBP" placeholder="80" min="40" max="150" required>
+                        <small class="hint">Normal: 60-80 mmHg</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="cholesterol">Total Cholesterol (mg/dL)</label>
+                        <input type="number" id="cholesterol" placeholder="180" min="100" max="400">
+                        <small class="hint">Normal: &lt;200 mg/dL</small>
+                    </div>
+                </div>
+
+
+
+                <!-- CLINICAL NOTES -->
+                <div class="form-section-title">
+                    <h2>📝 Clinical Notes</h2>
+                </div>
+
+                <div class="form-group">
+                    <label for="symptoms">Symptoms</label>
+                    <textarea id="symptoms" rows="3" placeholder="Patient complaints, symptoms observed..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="medicalHistory">Medical History</label>
+                    <textarea id="medicalHistory" rows="3" placeholder="Previous conditions, surgeries, family history..."></textarea>
+                </div>
+
+                <!-- SUBMIT BUTTONS -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        🔄 Reset Form
+                    </button>
+                    <button type="submit" class="btn btn-primary" onclick="window.location.href='report.html'">
+                        🔬 Generate Report
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </section>
+
+    <script src="js/main.js"></script>
+    <script src="js/form-handler.js"></script>
+    <script>
+        
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        const doctorName = localStorage.getItem('doctorName') || 'Doctor';
+        document.getElementById('doctorInfoBadge').innerHTML = 
+            '<span>👨‍⚕️ ' + doctorName + '</span>';
+    </script>
+</body>
+</html>

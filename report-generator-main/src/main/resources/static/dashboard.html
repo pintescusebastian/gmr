@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🫀 GMR</div>
+            <div class="nav-right">
+                <span class="doctor-badge" id="doctorName">👨‍⚕️ Loading...</span>
+                <a href="index.html" onclick="logout()" class="btn btn-secondary-small">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <section class="dashboard-section">
+        <div class="dashboard-container">
+            <h1>👨‍⚕️ Doctor Dashboard</h1>
+            <p class="welcome-text">Welcome back! Select an action below:</p>
+
+            <!-- Action Cards -->
+            <div class="dashboard-grid">
+                
+                <!-- New Report Card -->
+                <a href="new-report.html" class="dashboard-card card-primary">
+                    <div class="card-icon">📝</div>
+                    <h3>New Report</h3>
+                    <p>Generate a new cardiac assessment report</p>
+                    <span class="card-arrow">→</span>
+                </a>
+
+                <!-- View Reports Card -->
+                <div class="dashboard-card card-secondary">
+                    <div class="card-icon">📚</div>
+                    <h3>Reports History</h3>
+                    <p>View previously generated reports</p>
+                    
+                </div>
+
+            </div>
+
+
+        </div>
+    </section>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        async function initDashboard() {
+     try {
+         // verificăm token
+         const data = await fetchWithAuth('/api/dashboard');
+         console.log('Dashboard data:', data);
+
+         // setăm numele doctorului
+         document.getElementById('doctorName').textContent = `👨‍⚕️ ${localStorage.getItem('doctorName') || 'Doctor'}`;
+     } catch (err) {
+         console.error(err);
+     }
+ }
+
+ initDashboard();
+
+    </script>
+
+
+
+</body>
+</html>

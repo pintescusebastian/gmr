@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Report</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar no-print">
+        <div class="nav-container">
+            <div class="logo">🫀 GMR </div>
+            <div class="nav-right">
+                <a href="dashboard.html" class="nav-link">← Dashboard</a>
+                <button onclick="window.print()" class="btn btn-secondary-small">🖨️ Print</button>
+                <a href="index.html" onclick="logout()" class="btn btn-secondary-small">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Report Section -->
+    <section class="report-section">
+        <div class="report-container">
+            
+            <!-- REPORT HEADER -->
+            <div class="report-header">
+                <div class="report-title">
+                    <h1>📋 CARDIAC ASSESSMENT REPORT</h1>
+                    <p class="report-id">Report ID: <span id="reportId">#CAR-2024-001</span></p>
+                    <p class="report-date" id="reportDate">Date: Loading...</p>
+                </div>
+                <div class="clinic-info">
+                    <h3>🏥 CardioClinic</h3>
+                    <p>Cardiology Department</p>
+                    <p> Hospital</p>
+                </div>
+            </div>
+
+            <!-- PATIENT INFO -->
+            <div class="report-card">
+                <h2>👤 Patient Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Name:</span>
+                        <span class="value" id="reportPatientName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Age:</span>
+                        <span class="value" id="reportAge">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Gender:</span>
+                        <span class="value" id="reportGender">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Weight:</span>
+                        <span class="value" id="reportWeight">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VITAL SIGNS -->
+            <div class="report-card">
+                <h2>💓 Vital Signs & Measurements</h2>
+                <div class="measurements-grid">
+                    
+                    <div class="measurement-card" id="heartRateCard">
+                        <div class="measurement-icon">💗</div>
+                        <div class="measurement-info">
+                            <h4>Heart Rate</h4>
+                            <p class="measurement-value" id="reportHeartRate">-</p>
+                            <p class="measurement-unit">bpm</p>
+                            <span class="measurement-status normal">Normal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="measurement-card" id="bpCard">
+                        <div class="measurement-icon">🩸</div>
+                        <div class="measurement-info">
+                            <h4>Blood Pressure</h4>
+                            <p class="measurement-value" id="reportBP">-</p>
+                            <p class="measurement-unit">mmHg</p>
+                            <span class="measurement-status normal">Normal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="measurement-card" id="cholesterolCard">
+                        <div class="measurement-icon">🧪</div>
+                        <div class="measurement-info">
+                            <h4>Cholesterol</h4>
+                            <p class="measurement-value" id="reportCholesterol">-</p>
+                            <p class="measurement-unit">mg/dL</p>
+                            <span class="measurement-status normal">Normal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="measurement-card" id="glucoseCard">
+                        <div class="measurement-icon">🍬</div>
+                        <div class="measurement-info">
+                            <h4>Glucose</h4>
+                            <p class="measurement-value" id="reportGlucose">-</p>
+                            <p class="measurement-unit">mg/dL</p>
+                            <span class="measurement-status normal">Normal</span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- AI ANALYSIS -->
+            <div class="report-card highlight-card">
+                <h2>🤖 AI-Powered Analysis</h2>
+                <div class="analysis-content">
+                    <div class="risk-section">
+                        <h3>Risk Assessment</h3>
+                        <div class="risk-badge risk-low" id="riskBadge">
+                            <span class="risk-icon">✓</span>
+                            <span class="risk-text" id="riskLevel">LOW RISK</span>
+                        </div>
+                    </div>
+                    <div class="diagnosis-section">
+                        <h3>Diagnostic Impression</h3>
+                        <p id="diagnosisText">
+                            Patient presents with normal cardiac parameters. 
+                            All vital signs are within acceptable ranges for age and gender.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECOMMENDATIONS -->
+            <div class="report-card">
+                <h2>💡 Clinical Recommendations</h2>
+                <ul class="recommendations-list" id="recommendationsList">
+                    <li>✓ Continue current lifestyle and diet</li>
+                    <li>✓ Regular exercise (30 minutes, 5x per week)</li>
+                    <li>✓ Follow-up appointment in 6 months</li>
+                    <li>✓ Monitor blood pressure weekly</li>
+                </ul>
+            </div>
+
+            <!-- DOCTOR SIGNATURE -->
+            <div class="report-footer">
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p><strong id="reportDoctor">Dr. John Smith</strong></p>
+                    <p>Cardiologist</p>
+                    <p>License: MD-12345</p>
+                </div>
+                <div class="report-actions no-print">
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        🖨️ Print Report
+                    </button>
+                    <button onclick="window.location.href='new-report.html'" class="btn btn-primary">
+                        ➕ New Assessment
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script src="js/main.js"></script>
+    <script src="js/report-display.js"></script>
+</body>
+</html>

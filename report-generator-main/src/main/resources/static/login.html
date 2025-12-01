@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Login - CardioReport</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">🫀 GMR</div>
+        <a href="index.html" class="nav-link">← Back to Home</a>
+    </div>
+</nav>
+
+<section class="login-section">
+    <div class="login-container">
+        <h1>Doctor Login</h1>
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="doctorId">👤 Doctor ID</label>
+                <input type="text" id="doctorId" placeholder="Enter your doctor ID" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">🔒 Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">🩺 Login</button>
+        </form>
+
+        <div class="demo-info">
+            <h4>Demo Credentials:</h4>
+            <p><strong>ID:</strong> DR1001</p>
+            <p><strong>Password:</strong> secure_password</p>
+        </div>
+    </div>
+</section>
+
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
