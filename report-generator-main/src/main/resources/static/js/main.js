@@ -4,12 +4,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const doctorId = document.getElementById('doctorId').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    console.log('Trimit datele:', doctorId, password); // debug
+    console.log('Trimit datele:', doctorId, password);
 
     try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('http://localhost:8080/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // trimite cookie-uri
             body: JSON.stringify({ doctorCode: doctorId, password })
         });
 
@@ -17,14 +18,10 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         console.log('Răspuns backend:', data);
 
         if (data.token) {
-            // salvăm JWT și informații despre doctor
-            localStorage.setItem('jwtToken', data.token);
-            localStorage.setItem('doctorName', doctorId);
-            localStorage.setItem('isLoggedIn', 'true');
-
-            window.location.href = 'dashboard.html';
+            // Redirect direct fără alert
+            window.location.href = '/dashboard.html';
         } else {
-            alert('❌ Autentificare eșuată!');
+            alert('❌ Autentificare eșuată!'); // doar pentru eroare
         }
 
     } catch (error) {

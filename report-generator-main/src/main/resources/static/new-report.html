@@ -23,14 +23,14 @@
         <div class="form-container">
             <div class="form-header">
                 <h1>📋 New Cardiac Assessment</h1>
-               
+
                 <div class="doctor-info" id="doctorInfoBadge">
                     <span>👨‍⚕️ Loading...</span>
                 </div>
             </div>
 
             <form id="patientForm">
-                
+
                 <!-- PATIENT INFORMATION -->
                 <div class="form-section-title">
                     <h2>👤 Patient Information</h2>
@@ -125,17 +125,85 @@
         </div>
     </section>
 
-    <script src="js/main.js"></script>
-    <script src="js/form-handler.js"></script>
     <script>
-        
-        if (!localStorage.getItem('isLoggedIn')) {
-            window.location.href = 'login.html';
+        // Verificare autentificare prin Cookie
+        async function initNewReport() {
+            try {
+                const response = await fetch('http://localhost:8080/api/reports/new', {
+                    credentials: 'include' // trimite cookie-ul automat
+                });
+
+                if (response.status === 403 || response.status === 401) {
+                    console.warn('Nu ești autentificat, redirectăm...');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('New report data:', data);
+
+                // Setăm numele doctorului
+                if (data && data.doctorCode) {
+                    document.getElementById('doctorInfoBadge').innerHTML =
+                        '<span>👨‍⚕️ Dr. ' + data.doctorCode + '</span>';
+                }
+            } catch (err) {
+                console.error('Eroare:', err);
+                window.location.href = '/login.html';
+            }
         }
-        
-        const doctorName = localStorage.getItem('doctorName') || 'Doctor';
-        document.getElementById('doctorInfoBadge').innerHTML = 
-            '<span>👨‍⚕️ ' + doctorName + '</span>';
+
+        // Submit formular
+        document.getElementById('patientForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                patientName: document.getElementById('patientName').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                weight: document.getElementById('weight').value,
+                heartRate: document.getElementById('heartRate').value,
+                systolicBP: document.getElementById('systolicBP').value,
+                diastolicBP: document.getElementById('diastolicBP').value,
+                cholesterol: document.getElementById('cholesterol').value,
+                symptoms: document.getElementById('symptoms').value,
+                medicalHistory: document.getElementById('medicalHistory').value
+            };
+
+            // Salvăm datele pentru report.html
+            localStorage.setItem('currentReport', JSON.stringify(formData));
+
+            try {
+                const response = await fetch('http://localhost:8080/api/reports/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/report.html';
+                } else {
+                    alert('❌ Failed to create report');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error creating report');
+            }
+        });
+
+        function resetForm() {
+            document.getElementById('patientForm').reset();
+        }
+function logout() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+
+    // Inițializare
+    initNewReport();
     </script>
 </body>
 </html>

@@ -9,9 +9,12 @@ import com.mycompany.report_generator.repositories.PatientRepository;
 import com.mycompany.report_generator.repositories.DoctorRepository;
 import com.mycompany.report_generator.services.ObservationService;
 import jakarta.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,8 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class ReportController {
 
     private final ObservationService observationService;
-    private final PatientRepository patientRepository; // Adăugat
-    private final DoctorRepository doctorRepository; // Adăugat
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
 
     public ReportController(ObservationService observationService, PatientRepository patientRepository, DoctorRepository doctorRepository) {
         this.observationService = observationService;
@@ -29,26 +32,51 @@ public class ReportController {
         this.doctorRepository = doctorRepository;
     }
 
+    @GetMapping("/new")
+    public ResponseEntity<Map<String, Object>> getNewReportForm(Authentication authentication) {
+        String doctorCode = authentication.getName();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Ready to create new report");
+        response.put("doctorCode", doctorCode);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<Map<String, Object>> getReportsHistory(Authentication authentication) {
+        String doctorCode = authentication.getName();
+
+        // Găsește doctorul
+        Doctor doctor = doctorRepository.findByCode(doctorCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found"));
+
+        // List<Observation> observations = observationService.getObservationsByDoctorId(doctor.getId());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("doctorCode", doctorCode);
+        response.put("reports", new java.util.ArrayList<>()); // listă goală deocamdată
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/observation")
     public ResponseEntity<Observation> recordObservation(
             @Valid @RequestBody ObservationRequestDTO request
     ) {
         try {
-            // 1. Caută Pacientul. Dacă nu există, aruncă o eroare 404.
             Patient patient = patientRepository.findById(request.getPatientId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found with ID: " + request.getPatientId()));
 
-            // 2. Caută Doctorul. Dacă nu există, aruncă o eroare 404.
             Doctor doctor = doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found with ID: " + request.getDoctorId()));
 
-            // 3. Apelarea Service-ului cu obiectele găsite (Patient, Doctor, DTO)
             Observation newObservation =
                     observationService.recordNewObservation(patient, doctor, request);
 
             return new ResponseEntity<>(newObservation, HttpStatus.CREATED);
         } catch (ResponseStatusException e) {
-            throw e; // Lăsăm Spring să gestioneze 404
+            throw e;
         } catch (RuntimeException e) {
             System.err.println("Error recording observation: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

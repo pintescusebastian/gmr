@@ -4,6 +4,8 @@ import com.mycompany.report_generator.dto.AuthResponseDTO;
 import com.mycompany.report_generator.dto.LoginRequestDTO;
 import com.mycompany.report_generator.security.DoctorDetailsService;
 import com.mycompany.report_generator.security.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,9 +25,9 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     public AuthController(
-        AuthenticationManager authenticationManager,
-        DoctorDetailsService doctorDetailsService,
-        JwtUtil jwtUtil
+            AuthenticationManager authenticationManager,
+            DoctorDetailsService doctorDetailsService,
+            JwtUtil jwtUtil
     ) {
         this.authenticationManager = authenticationManager;
         this.doctorDetailsService = doctorDetailsService;
@@ -34,40 +36,42 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> createAuthenticationToken(
-        @RequestBody LoginRequestDTO loginRequest
+            @RequestBody LoginRequestDTO loginRequest,
+            HttpServletResponse response // ← ADAUGĂ PARAMETRU
     ) {
-        // 1. Încercarea de Autentificare
         try {
             authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getDoctorCode(),
-                    loginRequest.getPassword()
-                )
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getDoctorCode(),
+                            loginRequest.getPassword()
+                    )
             );
         } catch (BadCredentialsException e) {
-            // Trimiterea unui răspuns de eroare (fără token)
             return ResponseEntity.ok(
-                new AuthResponseDTO(
-                    null,
-                    "Autentificare eșuată: Cod doctor sau parolă incorectă."
-                )
+                    new AuthResponseDTO(
+                            null,
+                            "Autentificare eșuată: Cod doctor sau parolă incorectă."
+                    )
             );
         }
 
-        // 2. Dacă Autentificarea a reușit:
-
-        // Încarcă detalii utilizator pentru a genera tokenul
         final UserDetails userDetails = doctorDetailsService.loadUserByUsername(
-            loginRequest.getDoctorCode()
+                loginRequest.getDoctorCode()
         );
 
-        // Generează tokenul JWT
         final String jwt = jwtUtil.generateToken(userDetails);
 
-        // 3. Returnează tokenul și mesajul de succes în DTO
+        // COOKIE
+        Cookie jwtCookie = new Cookie("JWT_TOKEN", jwt);
+        jwtCookie.setHttpOnly(true); // Protecție XSS
+        jwtCookie.setSecure(false); // true pentru HTTPS în producție
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(10 * 60 * 60); // 10 ore
+        response.addCookie(jwtCookie);
+
         String successMessage =
-            "Autentificare reușită pentru doctorul: " +
-            loginRequest.getDoctorCode();
+                "Autentificare reușită pentru doctorul: " +
+                        loginRequest.getDoctorCode();
         return ResponseEntity.ok(new AuthResponseDTO(jwt, successMessage));
     }
 }
