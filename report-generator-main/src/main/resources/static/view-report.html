@@ -192,57 +192,56 @@
     }
 
     function renderReportsTable() {
-    const tbody = document.getElementById('reportsTableBody');
-    const emptyState = document.getElementById('emptyState');
+        const tbody = document.getElementById('reportsTableBody');
+        const emptyState = document.getElementById('emptyState');
 
-    if (filteredReports.length === 0) {
-        tbody.innerHTML = '';
-        emptyState.style.display = 'flex';
-        return;
+        if (filteredReports.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.style.display = 'flex';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+
+        tbody.innerHTML = filteredReports.map(report => {
+            // Asigură-te că avem valorile necesare
+            const reportId = report.id || report.observationId || 'N/A';
+            const patientName = report.patientName || 'Unknown Patient';
+            const age = report.age || 'N/A';
+            const date = report.date || new Date().toISOString();
+            const riskLevel = report.riskLevel || 'low';
+            const heartRate = report.heartRate || 'N/A';
+            const systolicBP = report.systolicBP || 'N/A';
+            const diastolicBP = report.diastolicBP || 'N/A';
+
+            return `
+                <tr class="report-row">
+                    <td><strong>#${reportId}</strong></td>
+                    <td>${patientName}</td>
+                    <td>${age}</td>
+                    <td>${formatDate(date)}</td>
+                    <td>
+                        <span class="risk-badge-small risk-${riskLevel}">
+                            ${riskLevel.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>${heartRate} bpm</td>
+                    <td>${systolicBP}/${diastolicBP} mmHg</td>
+                    <td class="action-buttons">
+                        <button class="btn-icon" onclick="viewReport(${reportId})" title="View Report">
+                            👁️
+                        </button>
+                        <button class="btn-icon" onclick="downloadReport(${reportId})" title="Download PDF">
+                            📥
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="deleteReport(${reportId})" title="Delete">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
-
-    emptyState.style.display = 'none';
-
-    tbody.innerHTML = filteredReports.map(report => {
-        // ← IMPORTANT: Folosim observationId pentru acțiuni, id pentru display
-        const displayId = report.id || report.observationId || 'N/A';
-        const observationId = report.observationId || report.id; // ← ID-ul real pentru backend
-        const patientName = report.patientName || 'Unknown Patient';
-        const age = report.age || 'N/A';
-        const date = report.date || new Date().toISOString();
-        const riskLevel = report.riskLevel || 'low';
-        const heartRate = report.heartRate || 'N/A';
-        const systolicBP = report.systolicBP || 'N/A';
-        const diastolicBP = report.diastolicBP || 'N/A';
-
-        return `
-            <tr class="report-row">
-                <td><strong>#${displayId}</strong></td>
-                <td>${patientName}</td>
-                <td>${age}</td>
-                <td>${formatDate(date)}</td>
-                <td>
-                    <span class="risk-badge-small risk-${riskLevel}">
-                        ${riskLevel.toUpperCase()}
-                    </span>
-                </td>
-                <td>${heartRate} bpm</td>
-                <td>${systolicBP}/${diastolicBP} mmHg</td>
-                <td class="action-buttons">
-                    <button class="btn-icon" onclick="viewReport(${observationId})" title="View Report">
-                        👁️
-                    </button>
-                    <button class="btn-icon" onclick="downloadReport(${observationId})" title="Download PDF">
-                        📥
-                    </button>
-                    <button class="btn-icon btn-delete" onclick="deleteReport(${observationId})" title="Delete">
-                        🗑️
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
 
     function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -324,8 +323,17 @@
     }
 
     function viewReport(observationId) {
-    // Redirectăm către pagina de vizualizare raport
-    window.location.href = `/view-report.html?observationId=${observationId}`;
+    console.log('View report clicked for observation:', observationId);
+
+    if (!observationId || observationId === 'N/A') {
+        alert('❌ Invalid observation ID');
+        return;
+    }
+
+    const url = `/view-report.html?observationId=${observationId}`;
+    console.log('Redirecting to:', url);
+
+    window.location.href = url;
 }
 
     function downloadReport(reportId) {

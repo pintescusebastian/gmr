@@ -10,4 +10,8 @@ public interface ObservationRepository
     extends JpaRepository<Observation, Long> {
     List<Observation> findByPatientId(Long patientId);
     List<Observation> findByPatientIdOrderByObservationDateDesc(Long patientId);
+    List<Observation> findByDoctorId(Long doctorId);
+
 }
+
+

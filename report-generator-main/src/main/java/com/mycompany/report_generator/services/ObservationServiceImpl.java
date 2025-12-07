@@ -86,4 +86,9 @@ public class ObservationServiceImpl implements ObservationService {
         return observationRepository.findById(observationId)
                 .orElseThrow(() -> new RuntimeException("Observation not found with ID: " + observationId));
     }
+
+    @Override
+    public List<Observation> getObservationsByDoctorId(Long doctorId) {
+        return observationRepository.findByDoctorId(doctorId);
+    }
 }

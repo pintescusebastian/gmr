@@ -26,4 +26,7 @@ public interface ObservationService {
 
     // 6. NOU: Obține o observație după ID (folosit de ReportController înainte de a chema LLM)
     Observation getObservationById(Long observationId);
+
+    // 7. Obține toate observațiile create de un doctor specific
+    List<Observation> getObservationsByDoctorId(Long doctorId);
 }

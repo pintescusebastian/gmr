@@ -3,47 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Report</title>
+    <title>New Report - GMR</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">🫀 GMR</div>
-            <div class="nav-right">
-                <a href="dashboard.html" class="nav-link">← Dashboard</a>
-                <a href="index.html" onclick="logout()" class="btn btn-secondary-small">Logout</a>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">🫀 GMR</div>
+        <div class="nav-right">
+            <span class="doctor-badge" id="doctorName">👨‍⚕️ Loading...</span>
+            <a href="/dashboard.html" class="nav-link">← Dashboard</a>
+            <a href="/login.html" onclick="logout()" class="btn btn-secondary-small">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Form Section -->
+<section class="form-section">
+    <div class="form-container">
+        <div class="form-header">
+            <h1>📋 New Cardiac Assessment</h1>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step1">
+                <span>1️⃣</span>
+                <span>Select Patient</span>
+            </div>
+            <div class="step" id="step2">
+                <span>2️⃣</span>
+                <span>Medical Observation</span>
+            </div>
+            <div class="step" id="step3">
+                <span>3️⃣</span>
+                <span>Generate Report</span>
             </div>
         </div>
-    </nav>
 
-    <!-- Form Section -->
-    <section class="form-section">
-        <div class="form-container">
-            <div class="form-header">
-                <h1>📋 New Cardiac Assessment</h1>
+        <!-- STEP 1: Patient Search/Selection -->
+        <div class="patient-search-section" id="patientSearchSection">
+            <h2>👤 Find or Create Patient</h2>
 
-                <div class="doctor-info" id="doctorInfoBadge">
-                    <span>👨‍⚕️ Loading...</span>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input
+                            type="text"
+                            id="patientSearch"
+                            class="search-input"
+                            placeholder="Search by name or CNP..."
+                    >
                 </div>
+                <button class="btn btn-secondary" onclick="showNewPatientForm()">
+                    ➕ New Patient
+                </button>
             </div>
 
-            <form id="patientForm">
+            <div class="patients-list" id="patientsList">
+                <p style="text-align: center; color: #8d99ae;">
+                    Start typing to search for patients...
+                </p>
+            </div>
+        </div>
 
-                <!-- PATIENT INFORMATION -->
-                <div class="form-section-title">
-                    <h2>👤 Patient Information</h2>
+        <!-- New Patient Form (hidden initially) -->
+        <div class="new-patient-form" id="newPatientForm">
+            <h2>➕ Register New Patient</h2>
+
+            <form id="createPatientForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" required>
+                    </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="patientName">Full Name *</label>
-                        <input type="text" id="patientName" placeholder="John Doe" required>
+                        <label for="cnp">CNP *</label>
+                        <input type="text" id="cnp" pattern="\d{13}" maxlength="13" required>
+                        <small class="hint">13 digits</small>
                     </div>
                     <div class="form-group">
-                        <label for="age">Age *</label>
-                        <input type="number" id="age" placeholder="45" min="1" max="120" required>
+                        <label for="birthDate">Birth Date *</label>
+                        <input type="date" id="birthDate" required>
                     </div>
                 </div>
 
@@ -52,58 +101,29 @@
                         <label for="gender">Gender *</label>
                         <select id="gender" required>
                             <option value="">Select...</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="weight">Weight (kg)</label>
-                        <input type="number" id="weight" placeholder="75" min="20" max="300" step="0.1">
+                        <label for="smoker">Smoking Status *</label>
+                        <select id="smoker" required>
+                            <option value="">Select...</option>
+                            <option value="true">Smoker</option>
+                            <option value="false">Non-smoker</option>
+                        </select>
                     </div>
-                </div>
-
-                <!-- CARDIAC PARAMETERS -->
-                <div class="form-section-title">
-                    <h2>💓 Cardiac Parameters</h2>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="heartRate">Heart Rate (bpm) *</label>
-                        <input type="number" id="heartRate" placeholder="75" min="30" max="220" required>
-                        <small class="hint">Normal: 60-100 bpm</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="systolicBP">Systolic BP (mmHg) *</label>
-                        <input type="number" id="systolicBP" placeholder="120" min="70" max="250" required>
-                        <small class="hint">Normal: 90-120 mmHg</small>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="diastolicBP">Diastolic BP (mmHg) *</label>
-                        <input type="number" id="diastolicBP" placeholder="80" min="40" max="150" required>
-                        <small class="hint">Normal: 60-80 mmHg</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="cholesterol">Total Cholesterol (mg/dL)</label>
-                        <input type="number" id="cholesterol" placeholder="180" min="100" max="400">
-                        <small class="hint">Normal: &lt;200 mg/dL</small>
-                    </div>
-                </div>
-
-
-
-                <!-- CLINICAL NOTES -->
-                <div class="form-section-title">
-                    <h2>📝 Clinical Notes</h2>
                 </div>
 
                 <div class="form-group">
-                    <label for="symptoms">Symptoms</label>
-                    <textarea id="symptoms" rows="3" placeholder="Patient complaints, symptoms observed..."></textarea>
+                    <label for="cholesterolStatus">Cholesterol Status</label>
+                    <select id="cholesterolStatus">
+                        <option value="">Select...</option>
+                        <option value="Normal">Normal (&lt;200 mg/dL)</option>
+                        <option value="Borderline">Borderline High (200-239 mg/dL)</option>
+                        <option value="High">High (≥240 mg/dL)</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -111,99 +131,369 @@
                     <textarea id="medicalHistory" rows="3" placeholder="Previous conditions, surgeries, family history..."></textarea>
                 </div>
 
-                <!-- SUBMIT BUTTONS -->
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                        🔄 Reset Form
+                    <button type="button" class="btn btn-secondary" onclick="hideNewPatientForm()">
+                        Cancel
                     </button>
-                    <button type="submit" class="btn btn-primary" onclick="window.location.href='report.html'">
-                        🔬 Generate Report
+                    <button type="submit" class="btn btn-primary">
+                        ✓ Create Patient
                     </button>
                 </div>
-
             </form>
         </div>
-    </section>
 
-    <script>
-        // Verificare autentificare prin Cookie
-        async function initNewReport() {
-            try {
-                const response = await fetch('http://localhost:8080/api/reports/new', {
-                    credentials: 'include' // trimite cookie-ul automat
-                });
+        <!-- Selected Patient Badge -->
+        <div class="selected-patient-badge" id="selectedPatientBadge">
+            <div>
+                <strong>Selected Patient:</strong>
+                <span id="selectedPatientInfo"></span>
+            </div>
+            <button class="btn btn-secondary-small" onclick="changePatient()">
+                Change Patient
+            </button>
+        </div>
 
-                if (response.status === 403 || response.status === 401) {
-                    console.warn('Nu ești autentificat, redirectăm...');
-                    window.location.href = '/login.html';
-                    return;
-                }
+        <!-- STEP 2: Observation Form -->
+        <form id="observationForm" class="observation-form">
+            <div class="form-section-title">
+                <h2>💓 Cardiac Parameters</h2>
+            </div>
 
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="heartRate">Heart Rate (bpm) *</label>
+                    <input type="number" id="heartRate" placeholder="75" min="30" max="220" required>
+                    <small class="hint">Normal: 60-100 bpm</small>
+                </div>
+                <div class="form-group">
+                    <label for="systolicBP">Systolic BP (mmHg) *</label>
+                    <input type="number" id="systolicBP" placeholder="120" min="70" max="250" required>
+                    <small class="hint">Normal: 90-120 mmHg</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="diastolicBP">Diastolic BP (mmHg) *</label>
+                    <input type="number" id="diastolicBP" placeholder="80" min="40" max="150" required>
+                    <small class="hint">Normal: 60-80 mmHg</small>
+                </div>
+                <div class="form-group">
+                    <label for="temperature">Temperature (°C)</label>
+                    <input type="number" id="temperature" placeholder="36.6" min="35" max="42" step="0.1">
+                    <small class="hint">Normal: 36.5-37.5 °C</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="oxygenSaturation">Oxygen Saturation (%)</label>
+                    <input type="number" id="oxygenSaturation" placeholder="98" min="70" max="100">
+                    <small class="hint">Normal: 95-100%</small>
+                </div>
+                <div class="form-group">
+                    <label for="respiratoryRate">Respiratory Rate (breaths/min)</label>
+                    <input type="number" id="respiratoryRate" placeholder="16" min="8" max="40">
+                    <small class="hint">Normal: 12-20/min</small>
+                </div>
+            </div>
+
+            <div class="form-section-title">
+                <h2>📝 Clinical Notes</h2>
+            </div>
+
+            <div class="form-group">
+                <label for="symptoms">Symptoms *</label>
+                <textarea id="symptoms" rows="3" placeholder="Patient complaints, symptoms observed..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="diagnosis">Diagnosis/Impression</label>
+                <textarea id="diagnosis" rows="3" placeholder="Preliminary diagnosis or clinical impression..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="additionalNotes">Additional Notes</label>
+                <textarea id="additionalNotes" rows="3" placeholder="Any other relevant information..."></textarea>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="goBackToPatientSelection()">
+                    ← Back to Patient Selection
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    🔬 Generate AI Report
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    let selectedPatient = null;
+    let currentDoctorCode = null;
+
+    // Verificare autentificare
+    async function initNewReport() {
+        try {
+            const response = await fetch('http://localhost:8080/api/reports/new', {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
                 const data = await response.json();
                 console.log('New report data:', data);
 
-                // Setăm numele doctorului
                 if (data && data.doctorCode) {
-                    document.getElementById('doctorInfoBadge').innerHTML =
-                        '<span>👨‍⚕️ Dr. ' + data.doctorCode + '</span>';
+                    document.getElementById('doctorName').textContent = `👨‍⚕️ Dr. ${data.doctorCode}`;
+                    currentDoctorCode = data.doctorCode;
                 }
-            } catch (err) {
-                console.error('Eroare:', err);
-                window.location.href = '/login.html';
+            } else {
+                console.warn('Response not OK:', response.status);
             }
+        } catch (err) {
+            console.error('Eroare:', err);
+        }
+    }
+
+    // Search patients
+    let searchTimeout;
+    document.getElementById('patientSearch').addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        const searchTerm = e.target.value.trim();
+
+        if (searchTerm.length < 2) {
+            document.getElementById('patientsList').innerHTML =
+                '<p style="text-align: center; color: #8d99ae;">Start typing to search for patients...</p>';
+            return;
         }
 
-        // Submit formular
-        document.getElementById('patientForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        searchTimeout = setTimeout(() => searchPatients(searchTerm), 300);
+    });
 
-            const formData = {
-                patientName: document.getElementById('patientName').value,
-                age: document.getElementById('age').value,
-                gender: document.getElementById('gender').value,
-                weight: document.getElementById('weight').value,
-                heartRate: document.getElementById('heartRate').value,
-                systolicBP: document.getElementById('systolicBP').value,
-                diastolicBP: document.getElementById('diastolicBP').value,
-                cholesterol: document.getElementById('cholesterol').value,
-                symptoms: document.getElementById('symptoms').value,
-                medicalHistory: document.getElementById('medicalHistory').value
-            };
+    async function searchPatients(searchTerm) {
+        try {
+            const response = await fetch(`http://localhost:8080/api/patients?search=${encodeURIComponent(searchTerm)}`, {
+                credentials: 'include'
+            });
 
-            // Salvăm datele pentru report.html
-            localStorage.setItem('currentReport', JSON.stringify(formData));
-
-            try {
-                const response = await fetch('http://localhost:8080/api/reports/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    window.location.href = '/report.html';
-                } else {
-                    alert('❌ Failed to create report');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error creating report');
+            if (response.ok) {
+                const patients = await response.json();
+                displayPatients(patients);
+            } else {
+                console.error('Error searching patients');
             }
-        });
-
-        function resetForm() {
-            document.getElementById('patientForm').reset();
+        } catch (error) {
+            console.error('Error:', error);
         }
-function logout() {
+    }
+
+    function displayPatients(patients) {
+        const patientsList = document.getElementById('patientsList');
+
+        if (patients.length === 0) {
+            patientsList.innerHTML = '<p style="text-align: center; color: #8d99ae;">No patients found. Try a different search or create a new patient.</p>';
+            return;
+        }
+
+        patientsList.innerHTML = patients.map(patient => {
+            const fullName = `${patient.firstName} ${patient.lastName}`;
+            const age = calculateAge(patient.birthDate);
+            return `
+                <div class="patient-card" onclick='selectPatient(${JSON.stringify(patient)})'>
+                    <div class="patient-info">
+                        <div class="patient-details">
+                            <h4>${fullName}</h4>
+                            <p>CNP: ${patient.cnp} | Age: ${age} | ${patient.gender}</p>
+                            ${patient.smoker ? '<p>🚬 Smoker</p>' : '<p>🚭 Non-smoker</p>'}
+                        </div>
+                        <div>→</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    function selectPatient(patient) {
+        selectedPatient = patient;
+        const fullName = `${patient.firstName} ${patient.lastName}`;
+
+        // Update badge
+        document.getElementById('selectedPatientInfo').textContent = `${fullName} (CNP: ${patient.cnp})`;
+        document.getElementById('selectedPatientBadge').classList.add('show');
+
+        // Hide search section, show observation form
+        document.getElementById('patientSearchSection').style.display = 'none';
+        document.getElementById('observationForm').style.display = 'block';
+
+        // Update steps
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step1').classList.add('completed');
+        document.getElementById('step2').classList.add('active');
+    }
+
+    function showNewPatientForm() {
+        document.getElementById('patientSearchSection').style.display = 'none';
+        document.getElementById('newPatientForm').style.display = 'block';
+    }
+
+    function hideNewPatientForm() {
+        document.getElementById('newPatientForm').style.display = 'none';
+        document.getElementById('patientSearchSection').style.display = 'block';
+    }
+
+    // Create new patient
+    document.getElementById('createPatientForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const patientData = {
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            cnp: document.getElementById('cnp').value,
+            birthDate: document.getElementById('birthDate').value,
+            gender: document.getElementById('gender').value,
+            smoker: document.getElementById('smoker').value === 'true',
+            cholesterolStatus: document.getElementById('cholesterolStatus').value || null,
+            medicalHistory: document.getElementById('medicalHistory').value || null
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/patients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(patientData)
+            });
+
+            if (response.status === 201) {
+                const newPatient = await response.json();
+                alert('✅ Patient created successfully!');
+
+                // Select the newly created patient
+                selectPatient(newPatient);
+                hideNewPatientForm();
+            } else if (response.status === 409) {
+                alert('❌ A patient with this CNP already exists!');
+            } else {
+                alert('❌ Error creating patient');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error creating patient');
+        }
+    });
+
+    function changePatient() {
+        selectedPatient = null;
+        document.getElementById('selectedPatientBadge').classList.remove('show');
+        document.getElementById('patientSearchSection').style.display = 'block';
+        document.getElementById('observationForm').style.display = 'none';
+
+        // Update steps
+        document.getElementById('step1').classList.remove('completed');
+        document.getElementById('step1').classList.add('active');
+        document.getElementById('step2').classList.remove('active');
+    }
+
+    function goBackToPatientSelection() {
+        changePatient();
+    }
+
+    // Submit observation
+    document.getElementById('observationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        if (!selectedPatient) {
+            alert('❌ Please select a patient first!');
+            return;
+        }
+
+        // Trebuie să găsim doctorId - presupunem DR1001 = id 1
+        const doctorId = 1;
+
+        // Construim vitalSigns ca Map<String, String>
+        const vitalSigns = {
+            heartRate: document.getElementById('heartRate').value,
+            systolicBloodPressure: document.getElementById('systolicBP').value,
+            diastolicBloodPressure: document.getElementById('diastolicBP').value
+        };
+
+        // Adăugăm valorile opționale doar dacă există
+        const temp = document.getElementById('temperature').value;
+        if (temp) vitalSigns.bodyTemperature = temp;
+
+        const oxygen = document.getElementById('oxygenSaturation').value;
+        if (oxygen) vitalSigns.oxygenSaturation = oxygen;
+
+        const respRate = document.getElementById('respiratoryRate').value;
+        if (respRate) vitalSigns.respiratoryRate = respRate;
+
+        // Construim symptomsDescription combinând toate notele clinice
+        let symptomsDescription = document.getElementById('symptoms').value;
+
+        const diagnosis = document.getElementById('diagnosis').value;
+        if (diagnosis) {
+            symptomsDescription += '\n\nDiagnosis: ' + diagnosis;
+        }
+
+        const additionalNotes = document.getElementById('additionalNotes').value;
+        if (additionalNotes) {
+            symptomsDescription += '\n\nAdditional Notes: ' + additionalNotes;
+        }
+
+        const observationData = {
+            patientId: selectedPatient.id,
+            doctorId: doctorId,
+            symptomsDescription: symptomsDescription,
+            vitalSigns: vitalSigns
+        };
+
+        console.log('Sending observation:', observationData);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/reports/observation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(observationData)
+            });
+
+            if (response.status === 201) {
+                const observation = await response.json();
+                alert('✅ Observation recorded! Generating AI report...');
+
+                // Redirect to report generation/display
+                window.location.href = `/report.html?observationId=${observation.id}`;
+            } else {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                alert('❌ Error recording observation');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error recording observation');
+        }
+    });
+
+    function logout() {
         localStorage.clear();
         window.location.href = '/login.html';
     }
 
     // Inițializare
     initNewReport();
-    </script>
+</script>
 </body>
 </html>
