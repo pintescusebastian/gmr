@@ -3,351 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports History - GMR</title>
+    <title>Medical Report - GMR</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar">
+<nav class="navbar no-print">
     <div class="nav-container">
         <div class="logo">🫀 GMR</div>
         <div class="nav-right">
             <span class="doctor-badge" id="doctorName">👨‍⚕️ Loading...</span>
-            <a href="/dashboard.html" class="nav-link">← Dashboard</a>
+            <a href="/report.html" class="nav-link">← Back to History</a>
+            <button onclick="window.print()" class="btn btn-secondary-small">🖨️ Print</button>
             <a href="/login.html" onclick="logout()" class="btn btn-secondary-small">Logout</a>
         </div>
     </div>
 </nav>
 
-<!-- Reports History Section -->
-<section class="dashboard-section">
-    <div class="dashboard-container">
-        <div class="page-header">
-            <h1>📚 Reports History</h1>
-            <p class="subtitle">View and manage all your cardiac assessment reports</p>
+<div class="report-wrapper">
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+        <div class="loading-spinner">⏳</div>
+        <h2>Generating AI Report...</h2>
+        <p>Please wait while we analyze the observation data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state" style="display: none;">
+        <div style="font-size: 64px;">❌</div>
+        <h2>Error Loading Report</h2>
+        <p id="errorMessage">Unable to load the report. Please try again.</p>
+        <button class="btn btn-primary" onclick="window.location.href='/report.html'">
+            ← Back to Reports
+        </button>
+    </div>
+
+    <!-- Report Content -->
+    <div id="reportContent" class="report-container" style="display: none;">
+        <!-- Header -->
+        <div class="report-header">
+            <h1>🫀 CARDIAC ASSESSMENT REPORT</h1>
+            <p id="reportId" style="color: #8d99ae; margin: 5px 0;">Report ID: #...</p>
+            <p id="reportDate" style="color: #8d99ae; margin: 5px 0;">Date: ...</p>
         </div>
 
-        <!-- Search & Filter Bar -->
-        <div class="search-filter-bar">
-            <div class="search-box">
-                <span class="search-icon">🔍</span>
-                <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Search by patient name, ID, or diagnosis..."
-                        class="search-input"
-                >
+        <!-- Patient & Doctor Info -->
+        <div class="report-meta">
+            <div class="meta-item">
+                <span class="meta-label">Patient Name</span>
+                <span class="meta-value" id="patientName">Loading...</span>
             </div>
-
-            <div class="filter-group">
-                <select id="filterRisk" class="filter-select">
-                    <option value="">All Risk Levels</option>
-                    <option value="low">Low Risk</option>
-                    <option value="moderate">Moderate Risk</option>
-                    <option value="high">High Risk</option>
-                </select>
-
-                <select id="filterDate" class="filter-select">
-                    <option value="">All Dates</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="year">This Year</option>
-                </select>
-
-                <button class="btn btn-secondary-small" onclick="resetFilters()">
-                    🔄 Reset
-                </button>
+            <div class="meta-item">
+                <span class="meta-label">Age</span>
+                <span class="meta-value" id="patientAge">...</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Gender</span>
+                <span class="meta-value" id="patientGender">...</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Doctor</span>
+                <span class="meta-value" id="doctorNameReport">Loading...</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Risk Level</span>
+                <span id="riskBadge" class="risk-badge">...</span>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">📋</div>
-                <div class="stat-info">
-                    <h3 id="totalReports">0</h3>
-                    <p>Total Reports</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-info">
-                    <h3 id="lowRiskCount">0</h3>
-                    <p>Low Risk</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⚠️</div>
-                <div class="stat-info">
-                    <h3 id="moderateRiskCount">0</h3>
-                    <p>Moderate Risk</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🚨</div>
-                <div class="stat-info">
-                    <h3 id="highRiskCount">0</h3>
-                    <p>High Risk</p>
+        <!-- Vital Signs -->
+        <div class="report-section">
+            <h2>💓 Vital Signs</h2>
+            <div class="vital-signs-grid" id="vitalSignsGrid">
+                <div class="vital-card">
+                    <h4>Heart Rate</h4>
+                    <p>Loading...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Reports Table -->
-        <div class="reports-table-container">
-            <table class="reports-table" id="reportsTable">
-                <thead>
-                <tr>
-                    <th>Report ID</th>
-                    <th>Patient Name</th>
-                    <th>Age</th>
-                    <th>Date</th>
-                    <th>Risk Level</th>
-                    <th>Heart Rate</th>
-                    <th>Blood Pressure</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody id="reportsTableBody">
-                <tr>
-                    <td colspan="8" class="loading-cell">
-                        <div class="loading-spinner">⏳ Loading reports...</div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <div class="empty-icon">📭</div>
-                <h3>No Reports Found</h3>
-                <p>You haven't created any reports yet, or no reports match your filters.</p>
-                <a href="/new-report.html" class="btn btn-primary">
-                    ➕ Create First Report
-                </a>
+        <!-- Symptoms -->
+        <div class="report-section">
+            <h2>📝 Symptoms & Clinical Notes</h2>
+            <div class="symptoms-box" id="symptomsText">
+                Loading symptoms...
             </div>
+        </div>
+
+        <!-- AI Generated Report -->
+        <div class="report-section">
+            <h2>🤖 AI-Generated Medical Analysis</h2>
+            <div class="ai-report-content" id="aiReportText">
+                Generating comprehensive analysis...
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons no-print">
+            <button onclick="window.print()" class="btn btn-secondary">
+                🖨️ Print Report
+            </button>
+            <button onclick="window.location.href='/report.html'" class="btn btn-secondary">
+                ← Back to History
+            </button>
+            <button onclick="window.location.href='/new-report.html'" class="btn btn-primary">
+                ➕ New Assessment
+            </button>
         </div>
     </div>
-</section>
+</div>
 
 <script>
-    let allReports = [];
-    let filteredReports = [];
+    // Get observationId from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const observationId = urlParams.get('observationId');
 
-    // Verificare autentificare și încărcare rapoarte
-    async function initReportsHistory() {
-        try {
-            const response = await fetch('http://localhost:8080/api/reports/history', {
-                credentials: 'include'
-            });
+    console.log('Loading report for observation ID:', observationId);
 
-            if (response.status === 403 || response.status === 401) {
-                window.location.href = '/login.html';
-                return;
-            }
-
-            const data = await response.json();
-            console.log('Reports history response:', data);
-
-            // Setăm numele doctorului
-            if (data && data.doctorCode) {
-                const doctorBadge = document.getElementById('doctorName');
-                if (doctorBadge) {
-                    doctorBadge.textContent = `👨‍⚕️ Dr. ${data.doctorCode}`;
-                }
-            }
-
-            // Încărcăm rapoartele
-            if (data.reports && data.reports.length > 0) {
-                console.log('Loading', data.reports.length, 'reports');
-                loadReports(data.reports);
-            } else {
-                console.log('No reports found, showing empty state');
-                loadReports([]);
-            }
-
-        } catch (err) {
-            console.error('Error loading reports history:', err);
-            // Nu redirectăm automat, doar afișăm empty state
-            loadReports([]);
-        }
-    }
-
-    function loadReports(reports) {
-        allReports = reports;
-        filteredReports = reports;
-
-        updateStats();
-        renderReportsTable();
-    }
-
-    function updateStats() {
-        document.getElementById('totalReports').textContent = allReports.length;
-        document.getElementById('lowRiskCount').textContent =
-            allReports.filter(r => r.riskLevel === 'low').length;
-        document.getElementById('moderateRiskCount').textContent =
-            allReports.filter(r => r.riskLevel === 'moderate').length;
-        document.getElementById('highRiskCount').textContent =
-            allReports.filter(r => r.riskLevel === 'high').length;
-    }
-
-    function renderReportsTable() {
-        const tbody = document.getElementById('reportsTableBody');
-        const emptyState = document.getElementById('emptyState');
-
-        if (filteredReports.length === 0) {
-            tbody.innerHTML = '';
-            emptyState.style.display = 'flex';
+    async function loadReport() {
+        if (!observationId) {
+            showError('No observation ID provided in URL');
             return;
         }
 
-        emptyState.style.display = 'none';
+        try {
+            console.log('Fetching report from:', `http://localhost:8080/api/reports/generate/${observationId}`);
 
-        tbody.innerHTML = filteredReports.map(report => {
-            // Asigură-te că avem valorile necesare
-            const reportId = report.id || report.observationId || 'N/A';
-            const patientName = report.patientName || 'Unknown Patient';
-            const age = report.age || 'N/A';
-            const date = report.date || new Date().toISOString();
-            const riskLevel = report.riskLevel || 'low';
-            const heartRate = report.heartRate || 'N/A';
-            const systolicBP = report.systolicBP || 'N/A';
-            const diastolicBP = report.diastolicBP || 'N/A';
+            const response = await fetch(`http://localhost:8080/api/reports/generate/${observationId}`, {
+                credentials: 'include'
+            });
 
-            return `
-                <tr class="report-row">
-                    <td><strong>#${reportId}</strong></td>
-                    <td>${patientName}</td>
-                    <td>${age}</td>
-                    <td>${formatDate(date)}</td>
-                    <td>
-                        <span class="risk-badge-small risk-${riskLevel}">
-                            ${riskLevel.toUpperCase()}
-                        </span>
-                    </td>
-                    <td>${heartRate} bpm</td>
-                    <td>${systolicBP}/${diastolicBP} mmHg</td>
-                    <td class="action-buttons">
-                        <button class="btn-icon" onclick="viewReport(${reportId})" title="View Report">
-                            👁️
-                        </button>
-                        <button class="btn-icon" onclick="downloadReport(${reportId})" title="Download PDF">
-                            📥
-                        </button>
-                        <button class="btn-icon btn-delete" onclick="deleteReport(${reportId})" title="Delete">
-                            🗑️
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+            console.log('Response status:', response.status);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const report = await response.json();
+            console.log('Report data received:', report);
+
+            displayReport(report);
+
+        } catch (error) {
+            console.error('Error loading report:', error);
+            showError(`Failed to load report: ${error.message}`);
+        }
+    }
+
+    function displayReport(report) {
+        console.log('Displaying report...');
+
+        // Hide loading, show content
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('reportContent').style.display = 'block';
+
+        // Set basic info
+        document.getElementById('reportId').textContent = `Report ID: #${report.id || observationId}`;
+
+        const reportDate = report.generatedAt || report.observation?.observationDate || new Date();
+        document.getElementById('reportDate').textContent = `Date: ${formatDate(reportDate)}`;
+
+        // Patient info
+        const observation = report.observation;
+        if (!observation) {
+            showError('No observation data in report');
+            return;
+        }
+
+        const patient = observation.patient;
+        const doctor = observation.doctor;
+
+        document.getElementById('patientName').textContent = `${patient.firstName} ${patient.lastName}`;
+        document.getElementById('patientAge').textContent = `${calculateAge(patient.birthDate)} years`;
+        document.getElementById('patientGender').textContent = patient.gender;
+
+        // Doctor info
+        const doctorDisplay = doctor.fullName || `Dr. ${doctor.code}`;
+        document.getElementById('doctorName').textContent = `👨‍⚕️ ${doctorDisplay}`;
+        document.getElementById('doctorNameReport').textContent = doctorDisplay;
+
+        // Risk level
+        const riskBadge = document.getElementById('riskBadge');
+        const riskLevel = (report.riskLevel || 'UNKNOWN').toLowerCase();
+        riskBadge.textContent = riskLevel.toUpperCase();
+        riskBadge.className = 'risk-badge risk-' + riskLevel;
+
+        // Vital signs
+        const vitalSigns = observation.vitalSigns;
+        const vitalSignsGrid = document.getElementById('vitalSignsGrid');
+
+        if (vitalSigns && typeof vitalSigns === 'object') {
+            vitalSignsGrid.innerHTML = Object.entries(vitalSigns).map(([key, value]) => {
+                const label = formatVitalSignLabel(key);
+                return `
+                    <div class="vital-card">
+                        <h4>${label}</h4>
+                        <p>${value}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Symptoms
+        document.getElementById('symptomsText').textContent = observation.symptomsDescription || 'No symptoms recorded';
+
+        // AI Generated Report
+        const aiContent = report.reportContent || 'No AI report content available';
+        document.getElementById('aiReportText').textContent = aiContent;
+
+        console.log('Report displayed successfully!');
+    }
+
+    function formatVitalSignLabel(key) {
+        const labels = {
+            'heartRate': 'Heart Rate (bpm)',
+            'systolicBloodPressure': 'Systolic BP (mmHg)',
+            'diastolicBloodPressure': 'Diastolic BP (mmHg)',
+            'bodyTemperature': 'Temperature (°C)',
+            'oxygenSaturation': 'Oxygen Saturation (%)',
+            'respiratoryRate': 'Respiratory Rate (/min)'
+        };
+        return labels[key] || key.replace(/([A-Z])/g, ' $1').trim();
+    }
+
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
     }
 
     function formatDate(dateStr) {
         const date = new Date(dateStr);
-        const today = new Date();
-        const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
-
-        if (diffDays === 0) return 'Today';
-        if (diffDays === 1) return 'Yesterday';
-        if (diffDays < 7) return `${diffDays} days ago`;
-
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        applyFilters();
-    });
-
-    // Filter functionality
-    document.getElementById('filterRisk').addEventListener('change', applyFilters);
-    document.getElementById('filterDate').addEventListener('change', applyFilters);
-
-    function applyFilters() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const riskFilter = document.getElementById('filterRisk').value;
-        const dateFilter = document.getElementById('filterDate').value;
-
-        filteredReports = allReports.filter(report => {
-            // Search filter
-            const matchesSearch = !searchTerm ||
-                (report.patientName && report.patientName.toLowerCase().includes(searchTerm)) ||
-                (report.id && report.id.toString().toLowerCase().includes(searchTerm)) ||
-                (report.diagnosis && report.diagnosis.toLowerCase().includes(searchTerm));
-
-            // Risk filter
-            const matchesRisk = !riskFilter || report.riskLevel === riskFilter;
-
-            // Date filter
-            const matchesDate = filterByDate(report.date, dateFilter);
-
-            return matchesSearch && matchesRisk && matchesDate;
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
-
-        renderReportsTable();
     }
 
-    function filterByDate(reportDate, filter) {
-        if (!filter) return true;
-
-        const date = new Date(reportDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        switch(filter) {
-            case 'today':
-                return date >= today;
-            case 'week':
-                const weekAgo = new Date(today);
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return date >= weekAgo;
-            case 'month':
-                const monthAgo = new Date(today);
-                monthAgo.setMonth(monthAgo.getMonth() - 1);
-                return date >= monthAgo;
-            case 'year':
-                const yearAgo = new Date(today);
-                yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-                return date >= yearAgo;
-            default:
-                return true;
-        }
-    }
-
-    function resetFilters() {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('filterRisk').value = '';
-        document.getElementById('filterDate').value = '';
-        applyFilters();
-    }
-
-    function viewReport(observationId) {
-    console.log('View report clicked for observation:', observationId);
-
-    if (!observationId || observationId === 'N/A') {
-        alert('❌ Invalid observation ID');
-        return;
-    }
-
-    const url = `/view-report.html?observationId=${observationId}`;
-    console.log('Redirecting to:', url);
-
-    window.location.href = url;
-}
-
-    function downloadReport(reportId) {
-        alert(`📥 Download functionality for ${reportId} - Coming soon!`);
-    }
-
-    function deleteReport(reportId) {
-        if (confirm(`Are you sure you want to delete report #${reportId}?`)) {
-            // TO DO: Call backend API to delete
-            allReports = allReports.filter(r => r.id !== reportId);
-            applyFilters();
-            updateStats();
-            alert(`✅ Report #${reportId} deleted successfully`);
-        }
+    function showError(message) {
+        console.error('Showing error:', message);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('reportContent').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').textContent = message;
     }
 
     function logout() {
@@ -355,8 +262,8 @@
         window.location.href = '/login.html';
     }
 
-    // ✅ CORECTAT: Apelăm funcția corectă
-    initReportsHistory();
+    // Load report on page load
+    window.addEventListener('DOMContentLoaded', loadReport);
 </script>
 </body>
 </html>

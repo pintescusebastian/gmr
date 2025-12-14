@@ -1,6 +1,7 @@
 package com.mycompany.report_generator.controllers;
 
 import com.mycompany.report_generator.dto.ObservationRequestDTO;
+import com.mycompany.report_generator.dto.ObservationReportDTO;
 import com.mycompany.report_generator.models.Observation;
 import com.mycompany.report_generator.models.ObservationReport;
 import com.mycompany.report_generator.models.Patient;
@@ -52,17 +53,14 @@ public class ReportController {
         String doctorCode = authentication.getName();
         System.out.println("DEBUG: Getting history for doctor: " + doctorCode);
 
-        // Găsește doctorul
         Doctor doctor = doctorRepository.findByCode(doctorCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found"));
 
         System.out.println("DEBUG: Doctor ID: " + doctor.getId());
 
-        // Preia toate observațiile doctorului
         List<Observation> observations = observationService.getObservationsByDoctorId(doctor.getId());
         System.out.println("DEBUG: Found " + observations.size() + " observations");
 
-        // Transformă observațiile în format pentru frontend
         List<Map<String, Object>> reports = observations.stream()
                 .map(obs -> {
                     Map<String, Object> report = new HashMap<>();
@@ -75,13 +73,11 @@ public class ReportController {
                     report.put("date", obs.getObservationDate());
                     report.put("riskLevel", determineRiskLevel(obs));
 
-                    // Extract vital signs
                     Map<String, String> vitalSigns = obs.getVitalSigns();
                     report.put("heartRate", vitalSigns.getOrDefault("heartRate", "N/A"));
                     report.put("systolicBP", vitalSigns.getOrDefault("systolicBloodPressure", "N/A"));
                     report.put("diastolicBP", vitalSigns.getOrDefault("diastolicBloodPressure", "N/A"));
 
-                    // Diagnosis - primele 100 caractere
                     String symptoms = obs.getSymptomsDescription();
                     report.put("diagnosis", symptoms.substring(0, Math.min(100, symptoms.length())) + "...");
 
@@ -120,14 +116,46 @@ public class ReportController {
     }
 
     @GetMapping("/generate/{observationId}")
-    public ResponseEntity<ObservationReport> generateReport(
+    public ResponseEntity<ObservationReportDTO> generateReport(
             @PathVariable Long observationId
     ) {
         try {
+            System.out.println("🔍 API: Fetching report for observation ID: " + observationId);
+
             ObservationReport report = observationService.getGeneratedReport(observationId);
-            return ResponseEntity.ok(report);
+
+            System.out.println("✅ Report found, converting to DTO...");
+
+            // Convertim la DTO pentru a evita probleme de serializare
+            ObservationReportDTO dto = ObservationReportDTO.builder()
+                    .id(report.getId())
+                    .reportContent(report.getReportContent())
+                    .riskLevel(report.getRiskLevel())
+                    .generationDate(report.getGenerationDate())
+                    .observation(ObservationReportDTO.ObservationDataDTO.builder()
+                            .id(report.getObservation().getId())
+                            .observationDate(report.getObservation().getObservationDate())
+                            .symptomsDescription(report.getObservation().getSymptomsDescription())
+                            .vitalSigns(report.getObservation().getVitalSigns())
+                            .patient(ObservationReportDTO.PatientDataDTO.builder()
+                                    .firstName(report.getObservation().getPatient().getFirstName())
+                                    .lastName(report.getObservation().getPatient().getLastName())
+                                    .birthDate(report.getObservation().getPatient().getBirthDate().toString())
+                                    .gender(report.getObservation().getPatient().getGender())
+                                    .build())
+                            .doctor(ObservationReportDTO.DoctorDataDTO.builder()
+                                    .code(report.getObservation().getDoctor().getCode())
+                                    .fullName(report.getObservation().getDoctor().getFirstName() + " " +
+                                            report.getObservation().getDoctor().getLastName())
+                                    .build())
+                            .build())
+                    .build();
+
+            System.out.println("✅ DTO created successfully!");
+            return ResponseEntity.ok(dto);
+
         } catch (RuntimeException e) {
-            System.err.println("Error generating report: " + e.getMessage());
+            System.err.println("❌ Error generating report: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -145,7 +173,7 @@ public class ReportController {
         }
     }
 
-    // Helper methods - DOAR O DATĂ!
+    // Helper methods
     private int calculateAge(LocalDate birthDate) {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }

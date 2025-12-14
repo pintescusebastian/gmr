@@ -25,42 +25,35 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
 
     public SecurityConfig(
-        DoctorDetailsService doctorDetailsService,
-        JwtRequestFilter jwtRequestFilter
+            DoctorDetailsService doctorDetailsService,
+            JwtRequestFilter jwtRequestFilter
     ) {
         this.doctorDetailsService = doctorDetailsService;
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
-    // 1. Definim PasswordEncoder pentru a accepta {noop}
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // DelegatingPasswordEncoder acceptă {noop}, asigurând compatibilitatea cu DoctorDetailsService
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    // 2. AuthenticationManager este necesar pentru a procesa cererea de login
     @Bean
     public AuthenticationManager authenticationManager(
-        AuthenticationConfiguration authenticationConfiguration
+            AuthenticationConfiguration authenticationConfiguration
     ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    // 3. Configurația pentru a lega DoctorDetailsService și PasswordEncoder
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider =
-            new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(doctorDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
-    // 4. Configurația Filter Chain (reguli de autorizare)
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -75,8 +68,14 @@ public class SecurityConfig {
                                         "/js/**",
                                         "/images/**"
                                 ).permitAll()
-                                // ← Paginile protejate
-                                .requestMatchers("/dashboard.html", "/new-report.html").authenticated()
+                                // Paginile HTML protejate (necesită JWT în cookie)
+                                .requestMatchers(
+                                        "/dashboard.html",
+                                        "/new-report.html",
+                                        "/report.html",
+                                        "/view-report.html"
+                                ).authenticated()
+                                // API-urile (necesită JWT)
                                 .requestMatchers("/api/**").authenticated()
                                 .anyRequest().authenticated()
                 )
@@ -94,10 +93,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.Arrays.asList("*")); // Permite toate originile
+        configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:8080"));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
-        configuration.setAllowCredentials(false); // Important: false când folosești "*" la origins
+        configuration.setAllowCredentials(true); // TRUE for cookies!
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

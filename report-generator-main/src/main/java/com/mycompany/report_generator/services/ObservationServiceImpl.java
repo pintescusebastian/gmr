@@ -36,59 +36,95 @@ public class ObservationServiceImpl implements ObservationService {
     @Override
     @Transactional
     public Observation recordNewObservation(Patient patient, Doctor doctor, ObservationRequestDTO request) {
-        Observation observation = new Observation(
-                patient,
-                doctor,
-                request.getSymptomsDescription(),
-                request.getVitalSigns()
-        );
+        System.out.println("📝 Recording new observation...");
+
+
+        Observation observation = new Observation();
+        observation.setPatient(patient);
+        observation.setDoctor(doctor);
+        observation.setSymptomsDescription(request.getSymptomsDescription());
+        observation.setVitalSigns(request.getVitalSigns());
         observation.setObservationDate(LocalDateTime.now());
-        return observationRepository.save(observation);
+
+
+        Observation savedObservation = observationRepository.save(observation);
+        System.out.println("✅ Observation saved with ID: " + savedObservation.getId());
+
+
+        try {
+            System.out.println("🤖 Generating AI report for observation ID: " + savedObservation.getId());
+
+            // Apelează serviciul de generare raport
+            ObservationReport report = reportGenerationService.generateReport(savedObservation);
+
+            // Salvează raportul în DB
+            report.setObservation(savedObservation);
+            report.setGenerationDate(LocalDateTime.now());
+            observationReportRepository.save(report);
+
+            System.out.println("✅ AI Report generated and saved successfully!");
+
+        } catch (Exception e) {
+            System.err.println("❌ Error generating report: " + e.getMessage());
+            e.printStackTrace();
+
+        }
+
+        return savedObservation;
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ObservationReport getGeneratedReport(Long observationId) {
-        // Obține Observația. Notă: Această metodă ar trebui să fie scoasă din uz,
-        // deoarece ReportController apelează direct reportGenerationService.generateReport(observation).
-        // Păstrată de dragul interfeței, dar funcționalitatea principală e delegată mai jos.
-        Observation observation = getObservationById(observationId);
+        System.out.println("📖 Fetching report for observation ID: " + observationId);
 
-        return reportGenerationService.generateReport(observation);
+
+        ObservationReport report = observationReportRepository
+                .findByObservationId(observationId)
+                .orElseThrow(() -> new RuntimeException("Report not found for observation ID: " + observationId));
+
+        System.out.println("✅ Report found in database!");
+        return report;
     }
 
     @Override
     @Transactional
     public void deleteReportByObservationId(Long observationId) {
-        // Implementarea corectă folosind repository-ul actualizat
+        System.out.println("🗑️ Deleting report for observation ID: " + observationId);
         observationReportRepository.deleteByObservationId(observationId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Observation> getObservationsByPatientId(Long patientId) {
+        System.out.println("📋 Fetching observations for patient ID: " + patientId);
+
         if (!patientRepository.existsById(patientId)) {
             throw new RuntimeException("Pacientul cu ID-ul " + patientId + " nu a fost găsit.");
         }
-        // Asumăm că ObservationRepository.java a fost actualizat cu această metodă
+
         return observationRepository.findByPatientIdOrderByObservationDateDesc(patientId);
     }
 
     @Override
     @Transactional
     public Observation saveObservation(Observation observation) {
+        System.out.println("💾 Saving observation...");
         return observationRepository.save(observation);
     }
 
-
     @Override
+    @Transactional(readOnly = true)
     public Observation getObservationById(Long observationId) {
+        System.out.println("🔍 Fetching observation with ID: " + observationId);
         return observationRepository.findById(observationId)
                 .orElseThrow(() -> new RuntimeException("Observation not found with ID: " + observationId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Observation> getObservationsByDoctorId(Long doctorId) {
+        System.out.println("📋 Fetching observations for doctor ID: " + doctorId);
         return observationRepository.findByDoctorId(doctorId);
     }
 }
