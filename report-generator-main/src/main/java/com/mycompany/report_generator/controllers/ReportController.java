@@ -196,4 +196,41 @@ public class ReportController {
             return "low";
         }
     }
+
+    @DeleteMapping("/observation/{observationId}")
+    public ResponseEntity<Map<String, String>> deleteObservation(
+            @PathVariable Long observationId,
+            Authentication authentication
+    ) {
+        try {
+            System.out.println("🗑️ Deleting observation ID: " + observationId);
+
+            // Verifică că observația aparține doctorului curent
+            Observation observation = observationService.getObservationById(observationId);
+            String doctorCode = authentication.getName();
+
+            if (!observation.getDoctor().getCode().equals(doctorCode)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "You can only delete your own observations"));
+            }
+
+            try {
+                observationService.deleteReportByObservationId(observationId);
+                System.out.println("✅ Report deleted");
+            } catch (Exception e) {
+                System.out.println("⚠️ No report to delete or already deleted");
+            }
+
+            // șterge observația
+            observationService.deleteObservation(observationId);
+
+            System.out.println("✅ Observation deleted successfully");
+            return ResponseEntity.ok(Map.of("message", "Observation deleted successfully"));
+
+        } catch (RuntimeException e) {
+            System.err.println("❌ Error deleting observation: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Observation not found"));
+        }
+    }
 }

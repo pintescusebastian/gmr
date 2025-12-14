@@ -331,15 +331,35 @@
         alert(`📥 Download functionality for ${reportId} - Coming soon!`);
     }
 
-    function deleteReport(reportId) {
-        if (confirm(`Are you sure you want to delete report #${reportId}?`)) {
-            // TO DO: Call backend API to delete
-            allReports = allReports.filter(r => r.id !== reportId);
-            applyFilters();
-            updateStats();
-            alert(`✅ Report #${reportId} deleted successfully`);
-        }
+    async function deleteReport(observationId) {
+    if (!confirm(`Are you sure you want to delete observation #${observationId}?`)) {
+        return;
     }
+
+    try {
+        console.log('Deleting observation:', observationId);
+
+        const response = await fetch(`http://localhost:8080/api/reports/observation/${observationId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert('✅ ' + data.message);
+
+            // Reîncarcă lista de rapoarte
+            initReportsHistory();
+        } else {
+            const error = await response.json();
+            alert('❌ ' + (error.message || 'Error deleting observation'));
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error deleting observation');
+    }
+}
 
     function logout() {
         localStorage.clear();

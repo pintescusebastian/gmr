@@ -28,6 +28,9 @@ public class Observation {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    @OneToOne(mappedBy = "observation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ObservationReport report;
+
     @Column(columnDefinition = "TEXT")
     private String symptomsDescription;
 

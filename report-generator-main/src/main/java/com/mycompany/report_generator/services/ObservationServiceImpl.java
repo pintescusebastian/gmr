@@ -127,4 +127,17 @@ public class ObservationServiceImpl implements ObservationService {
         System.out.println("📋 Fetching observations for doctor ID: " + doctorId);
         return observationRepository.findByDoctorId(doctorId);
     }
+
+    @Override
+    @Transactional
+    public void deleteObservation(Long observationId) {
+        System.out.println("🗑️ Deleting observation from database: " + observationId);
+
+        if (!observationRepository.existsById(observationId)) {
+            throw new RuntimeException("Observation not found with ID: " + observationId);
+        }
+
+        observationRepository.deleteById(observationId);
+        System.out.println("✅ Observation deleted from database");
+    }
 }

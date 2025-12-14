@@ -29,4 +29,7 @@ public interface ObservationService {
 
     // 7. Obține toate observațiile create de un doctor specific
     List<Observation> getObservationsByDoctorId(Long doctorId);
+
+    //Delete
+    void deleteObservation(Long observationId);
 }
